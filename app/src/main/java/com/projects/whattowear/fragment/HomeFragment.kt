@@ -7,7 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.projects.whattowear.databinding.FragmentHomeBinding
-import com.projects.whattowear.local.PrefsUtil
+import com.projects.whattowear.local.PrefsUtil.Companion.initPrefs
+import com.projects.whattowear.local.PrefsUtil.Companion.intervalsImageIdList
+import com.projects.whattowear.local.PrefsUtil.Companion.todayStartTime
 import com.projects.whattowear.model.Interval
 import com.projects.whattowear.network.ApiClient
 import com.projects.whattowear.network.DataManager
@@ -34,8 +36,8 @@ class HomeFragment : Fragment() {
                 requireActivity().runOnUiThread {
                     daysAdapter.submitList(intervalsList)
                     val todayWeather = intervalsList!![0]
-                    PrefsUtil.todayStartTime = todayWeather.startTime
-                    PrefsUtil.intervalsImageIdList =
+                    todayStartTime = todayWeather.startTime
+                    intervalsImageIdList =
                         intervalsList.joinToString(separator = ",") { it.clothesImageId.toString() }
                     setupBinding(todayWeather)
                 }
@@ -49,7 +51,7 @@ class HomeFragment : Fragment() {
         data = DataManager()
         binding.recyclerViewDays.adapter = daysAdapter
         daysAdapter.submitList(listOf())
-        PrefsUtil.initPrefs(requireActivity())
+        initPrefs(requireActivity())
     }
 
     @SuppressLint("SetTextI18n")
