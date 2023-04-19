@@ -1,7 +1,6 @@
 package com.projects.whattowear.network
 
-import android.util.Log
-import com.projects.whattowear.local.PrefsUtil
+import com.projects.whattowear.local.PrefsUtil.Companion.startTimeAndImageId
 import com.projects.whattowear.model.Interval
 import com.projects.whattowear.model.Temperature
 import org.json.JSONArray
@@ -60,14 +59,14 @@ class NetworkUtils {
         val delimiter2 = ","
         val serializedPairs =
             values.joinToString(delimiter1) { "${it.first}$delimiter2${it.second}" }
-        PrefsUtil.startTimeAndImageId = serializedPairs
+        startTimeAndImageId = serializedPairs
 
     }
 
     private fun getStartTimeAndImageId(): List<Pair<String, Int>>? {
         val delimiter1 = "|"
         val delimiter2 = ","
-        val serializedPairsArray = PrefsUtil.startTimeAndImageId?.split(delimiter1)?.toTypedArray()
+        val serializedPairsArray = startTimeAndImageId?.split(delimiter1)?.toTypedArray()
         return serializedPairsArray?.map { serializedPair ->
             val pairValues = serializedPair.split(delimiter2)
             Pair(pairValues[0], pairValues[1].toInt())
