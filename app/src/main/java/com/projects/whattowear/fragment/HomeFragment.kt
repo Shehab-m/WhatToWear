@@ -8,74 +8,88 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.projects.whattowear.databinding.FragmentHomeBinding
 import com.projects.whattowear.local.PrefsUtil.Companion.initPrefs
-import com.projects.whattowear.local.PrefsUtil.Companion.intervalsImageIdList
-import com.projects.whattowear.local.PrefsUtil.Companion.todayStartTime
 import com.projects.whattowear.model.Interval
-import com.projects.whattowear.network.ApiClient
 import com.projects.whattowear.network.DataManager
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), HomeView {
     private lateinit var binding: FragmentHomeBinding
-    private lateinit var client: ApiClient
     private lateinit var data: DataManager
+    private lateinit var presenter: HomePresenter
+    private lateinit var firstDay: Interval
+    private lateinit var homeAdapter: DaysAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val daysAdapter = DaysAdapter(::setupBinding)
-        init(daysAdapter)
+        initPrefs(requireActivity())
+        initPresenter()
+        initViews()
 
-        client.makeRequest { intervalsList, message ->
-            if (message != null) {
-                requireActivity().runOnUiThread {
-                    binding.textError.text = message
-                }
-            } else {
-                requireActivity().runOnUiThread {
-                    daysAdapter.submitList(intervalsList)
-                    val todayWeather = intervalsList!![0]
-                    todayStartTime = todayWeather.startTime
-                    intervalsImageIdList =
-                        intervalsList.joinToString(separator = ",") { it.clothesImageId.toString() }
-                    setupBinding(todayWeather)
-                }
-            }
-        }
         return binding.root
     }
 
-    private fun init(daysAdapter: DaysAdapter) {
-        client = ApiClient()
+    private fun initPresenter() {
+        presenter = HomePresenter()
+        presenter.onAttach(this)
+        presenter.initView()
+    }
+
+    private fun initViews() {
         data = DataManager()
-        binding.recyclerViewDays.adapter = daysAdapter
-        daysAdapter.submitList(listOf())
-        initPrefs(requireActivity())
+        homeAdapter = DaysAdapter(::setupBinding)
+        binding.recyclerViewDays.adapter = homeAdapter
+
     }
 
     @SuppressLint("SetTextI18n")
-    private fun setupBinding(todayWeather: Interval) {
-        binding.apply {
-            textDayDate.text = data.getDayName(todayWeather.startTime.substringBefore("T"), "EEEE")
-            imageWeather.setImageResource(todayWeather.weatherImageId)
-            textDegree.text = "${todayWeather.values.temperatureAvg}°c"
-            imageClothes.setImageResource(todayWeather.clothesImageId)
-            textOurPick.text = if (todayWeather.startTime == client.intervals[0].startTime) {
-                "Here is our pick for you today"
-            } else {
-                "Here is our pick for your ${data.getDayName(todayWeather.startTime, "EEEE")}"
-            }
-            textToday.text = if (todayWeather.startTime == client.intervals[0].startTime) {
-                "Today"
-            } else {
-                data.getDayName(todayWeather.startTime.substringBefore("T"), "EEEE").apply {
-                    textDayDate.text = todayWeather.startTime.substringBefore("T")
+    private fun setupBinding(today: Interval) {
+        requireActivity().runOnUiThread {
+            binding.apply {
+                textDayDate.text = data.getDayName(today.startTime.substringBefore("T"), "EEEE")
+                imageWeather.setImageResource(today.weatherImageId)
+                textDegree.text = "${today.values.temperatureAvg}°c"
+                imageClothes.setImageResource(today.clothesImageId)
+                textOurPick.text = if (today.startTime == firstDay.startTime) {
+                    "Here is our pick for you today"
+                } else {
+                    "Here is our pick for your ${data.getDayName(today.startTime, "EEEE")}"
                 }
+                textToday.text = if (today.startTime == firstDay.startTime) {
+                    "Today"
+                } else {
+                    data.getDayName(today.startTime.substringBefore("T"), "EEEE").apply {
+                        textDayDate.text = today.startTime.substringBefore("T")
+                    }
+                }
+                textLocation.visibility = View.VISIBLE
+                materialCardView.visibility = View.VISIBLE
             }
-            textLocation.visibility = View.VISIBLE
-            materialCardView.visibility = View.VISIBLE
         }
+
+    }
+
+    override fun getIntervals(intervals: List<Interval>) {
+        requireActivity().runOnUiThread {
+            firstDay = intervals[0]
+            homeAdapter.submitList(intervals)
+            val today = intervals[0]
+            setupBinding(today)
+
+        }
+    }
+
+    override fun getErrorMessage(message: String) {
+        requireActivity().runOnUiThread {
+            binding.textError.text = message
+        }
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        presenter.onDestroy()
     }
 
 

@@ -14,7 +14,6 @@ import java.io.IOException
 
 class ApiClient() {
     private val utils = NetworkUtils()
-    var intervals = listOf<Interval>()
 
     private val client: OkHttpClient by lazy {
         val interceptor =
@@ -31,19 +30,19 @@ class ApiClient() {
             .addQueryParameter("timezone", TIME_ZONE).build()
 
 
-    fun makeRequest(callback: (List<Interval>?, String?) -> Unit) {
+    fun makeRequest(apiCallback: ApiCallback) {
         val request = Request.Builder().url(httpUrl).build()
         client.newCall(request).enqueue(object : Callback {
 
             override fun onFailure(call: Call, e: IOException) {
-                callback(null, e.message)
+                e.message?.let { apiCallback.onError(it) }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 response.body?.string().let { jsonString ->
                     val jsonArray = utils.getIntervalsJsonArrayFromJson(jsonString!!)
-                    intervals = utils.parseIntervals(jsonArray)
-                    callback(intervals, null)
+                    val intervals = utils.parseIntervals(jsonArray)
+                    apiCallback.onSuccess(intervals)
                 }
             }
         })
