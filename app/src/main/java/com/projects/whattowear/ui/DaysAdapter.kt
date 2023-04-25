@@ -1,4 +1,4 @@
-package com.projects.whattowear.fragment
+package com.projects.whattowear.ui
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
@@ -6,13 +6,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.projects.whattowear.R
 import com.projects.whattowear.databinding.ItemDayBinding
 import com.projects.whattowear.model.DayWeatherType
 import com.projects.whattowear.model.Interval
-import com.projects.whattowear.network.ApiClient
 import com.projects.whattowear.network.DataManager
-import com.projects.whattowear.network.NetworkUtils
 
 class DaysAdapter(
     private val listener: (item: Interval) -> Unit,

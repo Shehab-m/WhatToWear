@@ -1,4 +1,4 @@
-package com.projects.whattowear.fragment
+package com.projects.whattowear.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.projects.whattowear.databinding.FragmentHomeBinding
 import com.projects.whattowear.local.PrefsUtil.Companion.initPrefs
+import com.projects.whattowear.repository.DaysRepositoryImpl
 import com.projects.whattowear.model.Interval
 import com.projects.whattowear.network.DataManager
 
@@ -31,8 +32,9 @@ class HomeFragment : Fragment(), HomeView {
     }
 
     private fun initPresenter() {
-        presenter = HomePresenter()
-        presenter.onAttach(this)
+        val repository = DaysRepositoryImpl()
+        presenter = HomePresenter(repository)
+        presenter.homeView = this
         presenter.initView()
     }
 
@@ -45,7 +47,7 @@ class HomeFragment : Fragment(), HomeView {
 
     @SuppressLint("SetTextI18n")
     private fun setupBinding(today: Interval) {
-        requireActivity().runOnUiThread {
+
             binding.apply {
                 textDayDate.text = data.getDayName(today.startTime.substringBefore("T"), "EEEE")
                 imageWeather.setImageResource(today.weatherImageId)
@@ -66,30 +68,24 @@ class HomeFragment : Fragment(), HomeView {
                 textLocation.visibility = View.VISIBLE
                 materialCardView.visibility = View.VISIBLE
             }
-        }
 
     }
 
     override fun getIntervals(intervals: List<Interval>) {
-        requireActivity().runOnUiThread {
             firstDay = intervals[0]
             homeAdapter.submitList(intervals)
             val today = intervals[0]
             setupBinding(today)
-
-        }
     }
 
     override fun getErrorMessage(message: String) {
-        requireActivity().runOnUiThread {
             binding.textError.text = message
-        }
     }
 
 
     override fun onDestroy() {
         super.onDestroy()
-        presenter.onDestroy()
+
     }
 
 

@@ -1,4 +1,4 @@
-package com.projects.whattowear.fragment
+package com.projects.whattowear.ui
 
 import com.projects.whattowear.model.Interval
 
