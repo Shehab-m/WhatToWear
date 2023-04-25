@@ -1,7 +1,6 @@
 package com.projects.whattowear.network
 
 import com.projects.whattowear.BuildConfig
-import com.projects.whattowear.model.Interval
 import com.projects.whattowear.utils.Constants.Companion.BASE_URL
 import com.projects.whattowear.utils.Constants.Companion.FIELDS
 import com.projects.whattowear.utils.Constants.Companion.LOCATION
@@ -12,7 +11,7 @@ import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import java.io.IOException
 
-class ApiClient() {
+class ApiClient(): ApiService {
     private val utils = NetworkUtils()
 
     private val client: OkHttpClient by lazy {
@@ -30,7 +29,8 @@ class ApiClient() {
             .addQueryParameter("timezone", TIME_ZONE).build()
 
 
-    fun makeRequest(apiCallback: ApiCallback) {
+
+    override fun getIntervalsFromApi(apiCallback: ApiCallback) {
         val request = Request.Builder().url(httpUrl).build()
         client.newCall(request).enqueue(object : Callback {
 
