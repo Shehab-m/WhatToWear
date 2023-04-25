@@ -2,7 +2,6 @@ package com.projects.whattowear.repository
 
 import com.projects.whattowear.model.Interval
 import com.projects.whattowear.network.ApiCallback
-import com.projects.whattowear.network.ApiClient
 import com.projects.whattowear.network.ApiService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -16,23 +15,10 @@ class DaysRepositoryImpl(private val apiClient: ApiService) : DaysRepository {
         CompositeDisposable()
     }
 
-
     override fun getIntervals(repositoryCallback: RepositoryCallback) {
         apiClient.getIntervalsFromApi(object : ApiCallback {
             override fun onSuccess(intervals: List<Interval>) {
-                intervals.toFlowable()
-                    .collect({ ArrayList() }, ArrayList<Interval>::add)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeBy(
-                        onSuccess = repositoryCallback::onGetIntervals,
-                        onError = { throwable ->
-                            repositoryCallback.onError(
-                                throwable.message ?: "Unknown Error"
-                            )
-                        }
-                    )
-                    .addTo(compositeDisposable)
+                repositoryCallbackGetIntervals(intervals, repositoryCallback)
             }
 
             override fun onError(message: String) {
@@ -41,5 +27,24 @@ class DaysRepositoryImpl(private val apiClient: ApiService) : DaysRepository {
         })
     }
 
+    private fun repositoryCallbackGetIntervals(
+        intervals: List<Interval>,
+        repositoryCallback: RepositoryCallback
+    ) {
+        intervals.toFlowable()
+            .collect({ ArrayList() }, ArrayList<Interval>::add)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onSuccess = repositoryCallback::onGetIntervals,
+                onError = { throwable ->
+                    repositoryCallback.onError(
+                        throwable.message ?: "Unknown Error"
+                    )
+                }
+            )
+            .addTo(compositeDisposable)
+    }
 
 }
+
