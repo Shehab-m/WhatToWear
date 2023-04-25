@@ -1,5 +1,6 @@
 package com.projects.whattowear.repository
 
+import android.util.Log
 import com.projects.whattowear.model.Interval
 import com.projects.whattowear.network.ApiCallback
 import com.projects.whattowear.network.ApiService
@@ -15,6 +16,7 @@ import io.reactivex.rxjava3.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 
 class DaysRepositoryImpl(private val apiClient: ApiService) : DaysRepository {
+    private val observer = Observer()
     private val compositeDisposable by lazy {
         CompositeDisposable()
     }
@@ -30,19 +32,20 @@ class DaysRepositoryImpl(private val apiClient: ApiService) : DaysRepository {
             }
         })
     }
-//الطريقة العادية
+
     private fun onRepositoryCallbackGetIntervals(
         intervals: List<Interval>,
         repositoryCallback: RepositoryCallback,
         compositeDisposable: CompositeDisposable
     ) {
-        intervals.toFlowable()
-            .collect({ ArrayList() }, ArrayList<Interval>::add)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+        observer.createObserver(intervals)
             .subscribeBy(
-                onSuccess = repositoryCallback::onGetIntervals,
+                onNext = { intervals ->
+                    Log.i("intervals", "${intervals}: ")
+                    repositoryCallback.onGetIntervals(intervals)
+                },
                 onError = { throwable ->
+                    Log.i("intervals", "${throwable}656256565642: ")
                     repositoryCallback.onError(
                         throwable.message ?: "Unknown Error"
                     )
@@ -50,6 +53,27 @@ class DaysRepositoryImpl(private val apiClient: ApiService) : DaysRepository {
             )
             .addTo(compositeDisposable)
     }
+
+//الطريقة العادية
+//    private fun onRepositoryCallbackGetIntervals(
+//        intervals: List<Interval>,
+//        repositoryCallback: RepositoryCallback,
+//        compositeDisposable: CompositeDisposable
+//    ) {
+//        intervals.toFlowable()
+//            .collect({ ArrayList() }, ArrayList<Interval>::add)
+//            .subscribeOn(Schedulers.io())
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribeBy(
+//                onSuccess = repositoryCallback::onGetIntervals,
+//                onError = { throwable ->
+//                    repositoryCallback.onError(
+//                        throwable.message ?: "Unknown Error"
+//                    )
+//                }
+//            )
+//            .addTo(compositeDisposable)
+//    }
 
     override fun clearCompositeDisposable() {
         compositeDisposable.dispose()
@@ -129,31 +153,10 @@ class DaysRepositoryImpl(private val apiClient: ApiService) : DaysRepository {
 //            .addTo(compositeDisposable)
 //    }
 
-//    private fun onRepositoryCallbackGetIntervals(
-//        intervals: List<Interval>,
-//        repositoryCallback: RepositoryCallback,
-//        compositeDisposable: CompositeDisposable
-//    ) {
-//        intervals.toObservable()
-//            .zipWith(
-//                Observable.interval(0, 3, TimeUnit.SECONDS)
-//            ) { interval, _ -> interval }
-//            .scan(emptyList<Interval>()) { acc, interval -> acc + interval }
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribeBy(
-//                onNext = { intervals ->
-//                    repositoryCallback.onGetIntervals(intervals)
-//                },
-//                onError = { throwable ->
-//                    repositoryCallback.onError(
-//                        throwable.message ?: "Unknown Error"
-//                    )
-//                }
-//            )
-//            .addTo(compositeDisposable)
+
+//    val observable = Observable.fromCallable {
+//
 //    }
-
-
 
 
 //    private fun repositoryCallbackGetIntervals(
