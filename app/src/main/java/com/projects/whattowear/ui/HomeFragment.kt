@@ -10,6 +10,7 @@ import com.projects.whattowear.databinding.FragmentHomeBinding
 import com.projects.whattowear.local.PrefsUtil.Companion.initPrefs
 import com.projects.whattowear.repository.DaysRepositoryImpl
 import com.projects.whattowear.model.Interval
+import com.projects.whattowear.network.ApiClient
 import com.projects.whattowear.network.DataManager
 
 class HomeFragment : Fragment(), HomeView {
@@ -32,7 +33,8 @@ class HomeFragment : Fragment(), HomeView {
     }
 
     private fun initPresenter() {
-        val repository = DaysRepositoryImpl()
+        val apiClient = ApiClient()
+        val repository = DaysRepositoryImpl(apiClient)
         presenter = HomePresenter(repository)
         presenter.homeView = this
         presenter.initView()

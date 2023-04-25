@@ -3,6 +3,7 @@ package com.projects.whattowear.repository
 import com.projects.whattowear.model.Interval
 import com.projects.whattowear.network.ApiCallback
 import com.projects.whattowear.network.ApiClient
+import com.projects.whattowear.network.ApiService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.addTo
@@ -10,13 +11,11 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.toFlowable
 import io.reactivex.rxjava3.schedulers.Schedulers
 
-class DaysRepositoryImpl() : DaysRepository {
+class DaysRepositoryImpl(private val apiClient: ApiService) : DaysRepository {
     private val compositeDisposable by lazy {
         CompositeDisposable()
     }
-    private val apiClient by lazy {
-        ApiClient()
-    }
+
 
     override fun getIntervals(repositoryCallback: RepositoryCallback) {
         apiClient.getIntervalsFromApi(object : ApiCallback {
