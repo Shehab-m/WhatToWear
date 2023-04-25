@@ -12,6 +12,7 @@ import com.projects.whattowear.repository.DaysRepositoryImpl
 import com.projects.whattowear.model.Interval
 import com.projects.whattowear.network.ApiClient
 import com.projects.whattowear.network.DataManager
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class HomeFragment : Fragment(), HomeView {
     private lateinit var binding: FragmentHomeBinding
@@ -19,6 +20,9 @@ class HomeFragment : Fragment(), HomeView {
     private lateinit var presenter: HomePresenter
     private lateinit var firstDay: Interval
     private lateinit var homeAdapter: DaysAdapter
+    private val compositeDisposable by lazy {
+        CompositeDisposable()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -75,10 +79,12 @@ class HomeFragment : Fragment(), HomeView {
     }
 
     override fun getIntervals(intervals: List<Interval>) {
+        if (intervals.isNotEmpty()) {
             firstDay = intervals[0]
             homeAdapter.submitList(intervals)
             val today = intervals[0]
             setupBinding(today)
+        }
     }
 
     override fun getErrorMessage(message: String) {
@@ -91,7 +97,7 @@ class HomeFragment : Fragment(), HomeView {
 
     override fun onDestroy() {
         super.onDestroy()
-
+        presenter.clearCompositeDisposable()
     }
 
 

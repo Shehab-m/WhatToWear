@@ -7,7 +7,6 @@ import com.projects.whattowear.model.Interval
 class HomePresenter(private val repository: DaysRepository) : RepositoryCallback {
     lateinit var homeView: HomeView
 
-
     override fun onGetIntervals(intervals: List<Interval>) {
         homeView.getIntervals(intervals)
     }
@@ -16,9 +15,12 @@ class HomePresenter(private val repository: DaysRepository) : RepositoryCallback
         homeView.getErrorMessage(message)
     }
 
-
     fun initView() {
         repository.getIntervals(this)
+    }
+
+    fun clearCompositeDisposable() {
+        repository.clearCompositeDisposable()
     }
 
 }
