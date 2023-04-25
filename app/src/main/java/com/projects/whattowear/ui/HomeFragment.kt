@@ -50,7 +50,7 @@ class HomeFragment : Fragment(), HomeView {
     @SuppressLint("SetTextI18n")
     private fun setupBinding(today: Interval) {
 
-            binding.apply {
+            with(binding){
                 textDayDate.text = data.getDayName(today.startTime.substringBefore("T"), "EEEE")
                 imageWeather.setImageResource(today.weatherImageId)
                 textDegree.text = "${today.values.temperatureAvg}°c"
@@ -69,6 +69,7 @@ class HomeFragment : Fragment(), HomeView {
                 }
                 textLocation.visibility = View.VISIBLE
                 materialCardView.visibility = View.VISIBLE
+                progressbar.visibility = View.INVISIBLE
             }
 
     }
@@ -81,7 +82,10 @@ class HomeFragment : Fragment(), HomeView {
     }
 
     override fun getErrorMessage(message: String) {
-            binding.textError.text = message
+            with(binding){
+                textError.text = message
+                progressbar.visibility = View.INVISIBLE
+            }
     }
 
 
