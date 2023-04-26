@@ -13,6 +13,7 @@ import com.projects.whattowear.model.Interval
 import com.projects.whattowear.network.ApiClient
 import com.projects.whattowear.network.DataManager
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import okhttp3.OkHttpClient
 
 class HomeFragment : Fragment(), HomeView {
     private lateinit var binding: FragmentHomeBinding
@@ -29,6 +30,7 @@ class HomeFragment : Fragment(), HomeView {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
+
         initPrefs(requireActivity())
         initPresenter()
         initViews()
@@ -37,7 +39,8 @@ class HomeFragment : Fragment(), HomeView {
     }
 
     private fun initPresenter() {
-        val apiClient = ApiClient()
+        val client: OkHttpClient = OkHttpClient()
+        val apiClient = ApiClient(client)
         val repository = DaysRepositoryImpl(apiClient)
         presenter = HomePresenter(repository)
         presenter.homeView = this

@@ -22,15 +22,28 @@ class DaysRepositoryImpl(private val apiClient: ApiService) : DaysRepository {
     }
 
     override fun getIntervals(repositoryCallback: RepositoryCallback) {
-        apiClient.getIntervalsFromApi(object : ApiCallback {
-            override fun onSuccess(intervals: List<Interval>) {
-                onRepositoryCallbackGetIntervals(intervals, repositoryCallback, compositeDisposable)
+//        apiClient.getIntervalsFromApi(object : ApiCallback {
+//            override fun onSuccess(intervals: List<Interval>) {
+//                onRepositoryCallbackGetIntervals(intervals, repositoryCallback, compositeDisposable)
+//            }
+//
+//            override fun onError(message: String) {
+//                repositoryCallback.onError(message)
+//            }
+//        })
+        apiClient.getIntervalsFromApi().subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()).subscribeBy(
+            onSuccess = { intervals ->
+                Log.i("intervals", "${intervals}: ")
+                repositoryCallback.onGetIntervals(intervals)
+            },
+            onError = { throwable ->
+                Log.i("intervals", "${throwable}656256565642: ")
+                repositoryCallback.onError(
+                    throwable.message ?: "Unknown Error"
+                )
             }
-
-            override fun onError(message: String) {
-                repositoryCallback.onError(message)
-            }
-        })
+        ).addTo(compositeDisposable)
     }
 
     private fun onRepositoryCallbackGetIntervals(
