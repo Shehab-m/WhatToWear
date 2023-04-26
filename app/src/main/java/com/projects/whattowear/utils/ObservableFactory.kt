@@ -1,4 +1,4 @@
-package com.projects.whattowear.repository
+package com.projects.whattowear.utils
 
 import com.projects.whattowear.model.Interval
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers

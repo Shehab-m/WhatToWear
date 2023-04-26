@@ -3,6 +3,7 @@ package com.projects.whattowear.repository
 import com.projects.whattowear.model.Interval
 import com.projects.whattowear.network.ApiCallback
 import com.projects.whattowear.network.ApiService
+import com.projects.whattowear.utils.ObservableFactory
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.addTo
 import io.reactivex.rxjava3.kotlin.subscribeBy
